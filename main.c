@@ -12,7 +12,6 @@ typedef struct nodo nodo;
 
 struct grafo{
 	int** matrizAdyacencia;
-	nodo* vertices;
 	int numero_nodos;
 };
 
@@ -46,7 +45,6 @@ lista* crearLista()
 	l = (lista*)malloc(sizeof(lista));
 	l->inicio = NULL;
 	l->fin = NULL;
-
 	return l;
 }
 
@@ -57,19 +55,6 @@ nodo* crearNodo(int camino[])
 	memcpy(c->arregloCamino,camino,sizeof(c->arregloCamino));
 	c->siguiente=NULL;
 	return c;
-}
-nodo* desencolar(lista* Q)
-{
-	if(Q->inicio==NULL)
-		return NULL;
-	else
-	{
-		nodo* r;
-		
-		r=Q->inicio;
-		Q->inicio=Q->inicio->siguiente;
-		return r;
-	}
 }
 
 int calcularCosto(nodo* camino, int n, grafo*G){
@@ -115,7 +100,8 @@ int determinarMinimo(lista*Q, int nodos){
 	//printf("EL COSTO MINIMO ES : %d\n",minimo );
 	return minimo;
 }
-void imprimirLista(lista* Q, int nodos){
+void printCurrent(lista* Q, int nodos){
+	#ifdef DEBUG
 	nodo* cursor = Q->inicio;
 	while(cursor!=NULL){
 		
@@ -124,6 +110,7 @@ void imprimirLista(lista* Q, int nodos){
 		printf("\n");
 		cursor = cursor->siguiente;
 	}
+	#endif
 }
 void entregarMinimo(lista* Q, int n){
 	int minimo = determinarMinimo(Q,n);
@@ -142,7 +129,7 @@ void entregarMinimo(lista* Q, int n){
 		}
 		cursor = cursor ->siguiente;
 	}
-
+ 
 }
 void leerarchivo(grafo* G){
 		//char senal[10];
@@ -198,26 +185,23 @@ void leerarchivo(grafo* G){
 			G->matrizAdyacencia = matrizAdyacencia;
 }
 
+
 void BruteForce(int vertice, int contador, int cantidad,int camino[], int* visitados, lista* listaCaminos ){
 
 	if(contador == cantidad){
-		camino[contador-1] = vertice;	
-		nodo* nodoCamino = crearNodo(camino);
-		
-		encolar(listaCaminos,nodoCamino);
-		//imprimircamino(camino,cantidad);
-		//printf("\n");
-	
+			camino[contador-1] = vertice;	
+			nodo* nodoCamino = crearNodo(camino);
+			encolar(listaCaminos,nodoCamino);
 	}
 	else{
-		visitados[vertice-1] = 1;
-		for (int i = 0; i < cantidad; i++){
+			visitados[vertice-1] = 1;
+			for (int i = 0; i < cantidad; i++){
 			if(visitados[i]!=1){
-				camino[contador] =  i+1;
-				BruteForce(i+1,contador+1,cantidad,camino,visitados,listaCaminos);
+			camino[contador] =  i+1;
+			BruteForce(i+1,contador+1,cantidad,camino,visitados,listaCaminos);
 			}
 		}
-		visitados[vertice-1] = 0;
+			visitados[vertice-1] = 0;
 	}
 	
 
@@ -241,20 +225,15 @@ int main(int argc, char const *argv[])
 		camino[i]=0;
 	}
 	lista* listaCaminos = crearLista();
-	for (int i = 1; i <= n; i++){
+		for (int i = 1; i <= n; i++){
 		camino[0] = i;
 		BruteForce(i,1,n,camino,visitados,listaCaminos);
-	}
-	for (int i = 0; i < n; ++i)
-	{
-		for( int j = 0 ; j < n; j++){
-			printf("%d ",G->matrizAdyacencia[i][j] );
-		} 
-		printf("\n");
-	}
+
+		}
+	
 	determinarCostos(listaCaminos,n,G);
-	//imprimirLista(listaCaminos,n);
 	determinarMinimo(listaCaminos,n);
+	printCurrent(listaCaminos,n);
 	entregarMinimo(listaCaminos,n);
 	return 0;
 }
